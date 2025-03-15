@@ -140,22 +140,29 @@ class MenuScreen:
         # Project title
         title = tk.Label(
             page_frame,
-            text=self.menu_items[project_name],
+            text=project_name,
             font=self.title_font,
             bg='white',
             fg='black'
         )
-        title.pack(pady=50)
+        title.pack(pady=20)
         
-        # Add your project-specific content here
-        content = tk.Label(
-            page_frame,
-            text=f"Content for {project_name}",
-            font=self.menu_font,
-            bg='white',
-            fg='black'
-        )
-        content.pack(expand=True)
+        if project_name == "Impossible Rock Paper Scissors":
+            from RPS import ImpossibleRPS
+            game = ImpossibleRPS(page_frame)
+        elif project_name == "Guess Your Birthday":
+            from birthdayboy import BirthdayGuesser
+            game = BirthdayGuesser(page_frame)
+        else:
+            # Add your project-specific content here
+            content = tk.Label(
+                page_frame,
+                text=f"Content for {project_name}",
+                font=self.menu_font,
+                bg='white',
+                fg='black'
+            )
+            content.pack(expand=True)
         
         return page_frame
 
