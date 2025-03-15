@@ -3,34 +3,70 @@ import random
 import time
 
 class GamblingGame:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Gambling Game")
-        
+    def __init__(self, parent_frame):
+        self.parent = parent_frame
         self.money = 10000
         self.f = False
         
-        # Create the GUI elements
-        self.balance_label = tk.Label(root, text=f"Your balance: ${self.money}")
+        # Create game frame with white background
+        self.game_frame = tk.Frame(self.parent, bg='white')
+        self.game_frame.pack(expand=True, fill='both', padx=20, pady=20)
+        
+        # Create the GUI elements with consistent styling
+        self.balance_label = tk.Label(
+            self.game_frame, 
+            text=f"Your balance: ${self.money}",
+            font=("Arial", 24),
+            bg='white'
+        )
         self.balance_label.pack(pady=10)
         
-        self.start_button = tk.Button(root, text="Start Game", command=self.start_game)
+        self.start_button = tk.Button(
+            self.game_frame,
+            text="Start Game",
+            font=("Arial", 18),
+            command=self.start_game,
+            bg='white',
+            relief='solid',
+            cursor='hand2'
+        )
         self.start_button.pack(pady=10)
 
-        self.bet_label = tk.Label(root, text="Enter your gamble amount:")
+        self.bet_label = tk.Label(
+            self.game_frame,
+            text="Enter your gamble amount:",
+            font=("Arial", 18),
+            bg='white'
+        )
         self.bet_label.pack(pady=5)
 
-        self.bet_entry = tk.Entry(root)
+        self.bet_entry = tk.Entry(
+            self.game_frame,
+            font=("Arial", 18),
+            width=20
+        )
         self.bet_entry.pack(pady=5)
 
-        self.gamble_button = tk.Button(root, text="Gamble", state=tk.DISABLED, command=self.gamble)
+        self.gamble_button = tk.Button(
+            self.game_frame,
+            text="Gamble",
+            font=("Arial", 18),
+            state=tk.DISABLED,
+            command=self.gamble,
+            bg='white',
+            relief='solid',
+            cursor='hand2'
+        )
         self.gamble_button.pack(pady=10)
 
-        self.result_label = tk.Label(root, text="", font=("Helvetica", 14))
+        self.result_label = tk.Label(
+            self.game_frame,
+            text="",
+            font=("Arial", 20),
+            bg='white',
+            wraplength=500
+        )
         self.result_label.pack(pady=20)
-
-        self.quit_button = tk.Button(root, text="Quit", command=self.quit_game)
-        self.quit_button.pack(pady=10)
 
     def start_game(self):
         """Start the game."""
@@ -63,7 +99,7 @@ class GamblingGame:
         self.result_label.config(text=f"Items drawn: {item1}  {item2}  {item3}")
 
         # Simulate a pause to show suspense
-        self.root.after(1000, self.check_result, item1, item2, item3, amount)
+        self.parent.after(1000, self.check_result, item1, item2, item3, amount)
 
     def check_result(self, item1, item2, item3, amount):
         """Check the result of the gamble."""
@@ -74,7 +110,7 @@ class GamblingGame:
             self.result_label.config(text=f"You win! You won: ${win_amount}\nYour new balance: ${self.money}")
         else:
             self.money -= amount
-            self.result_label.config(text=f"You lose! You lost: ${amount}\nYour new balance: ${self.money}")
+            self.result_label.config(text=f"You lose! You lost: ${amount}\nHave 3 matching numbers to win\nYour new balance: ${self.money}")
         
         # Update balance
         self.update_balance_label()
@@ -87,12 +123,3 @@ class GamblingGame:
     def update_balance_label(self):
         """Update the balance label to reflect the current balance."""
         self.balance_label.config(text=f"Your balance: ${self.money}")
-
-    def quit_game(self):
-        """Quit the game."""
-        self.root.quit()
-
-# Set up the Tkinter window
-root = tk.Tk()
-game = GamblingGame(root)
-root.mainloop()
