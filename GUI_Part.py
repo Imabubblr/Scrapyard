@@ -37,7 +37,7 @@ class MenuScreen:
             "Impossible Rock Paper Scissors": "Project 1 Page",
             "Guess Your Birthday": "Project 2 Page",
             "Impractical To-Do List": "Project 3 Page",
-            "Project 4": "Project 4 Page",
+            "GAMBLING": "Project 4 Page",
             "Project 5": "Project 5 Page",
             "Project 6": "Project 6 Page",
             "Project 7": "Project 7 Page",
