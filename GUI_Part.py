@@ -153,6 +153,9 @@ class MenuScreen:
         elif project_name == "Guess Your Birthday":
             from birthdayboy import BirthdayGuesser
             game = BirthdayGuesser(page_frame)
+        elif project_name == "Impractical To-Do List":
+            from Deletinglist import ImpracticalTodoList
+            game = ImpracticalTodoList(page_frame)
         else:
             # Add your project-specific content here
             content = tk.Label(
