@@ -11,13 +11,17 @@ class BirthdayGuesser:
         
         # Initialize game variables
         self.guessing_month = True  # Start with month
+        self.guessing_year = False  # Add year guessing state
         self.min_month = 1
         self.max_month = 12
         self.min_day = 1
         self.max_day = 31
+        self.min_year = 0  # Add minimum year
+        self.max_year = 4000  # Add maximum year
         self.current_guess = 6  # Start in middle of months
         self.attempts = 0
         self.chosen_month = None
+        self.chosen_day = None  # Add chosen day variable
         
         # Month names
         self.months = {
@@ -62,12 +66,12 @@ class BirthdayGuesser:
         self.question_label.pack(pady=30)
         
         # Buttons frame
-        button_frame = tk.Frame(self.game_frame, bg='white')
-        button_frame.pack(pady=20)
+        self.button_frame = tk.Frame(self.game_frame, bg='white')
+        self.button_frame.pack(pady=20)
         
         # Earlier/Correct/Later buttons
         self.earlier_button = tk.Button(
-            button_frame,
+            self.button_frame,
             text="Earlier",
             font=self.game_font,
             width=10,
@@ -79,7 +83,7 @@ class BirthdayGuesser:
         self.earlier_button.pack(side=tk.LEFT, padx=10)
         
         self.correct_button = tk.Button(
-            button_frame,
+            self.button_frame,
             text="Correct!",
             font=self.game_font,
             width=10,
@@ -91,7 +95,7 @@ class BirthdayGuesser:
         self.correct_button.pack(side=tk.LEFT, padx=10)
         
         self.later_button = tk.Button(
-            button_frame,
+            self.button_frame,
             text="Later",
             font=self.game_font,
             width=10,
@@ -148,17 +152,26 @@ class BirthdayGuesser:
                 self.current_guess = 15  # Start in middle of possible days
                 self.max_day = self.days_in_month[self.chosen_month]
                 self.make_new_guess()
-            else:
+            elif not self.guessing_year:  # If we're guessing day
+                self.chosen_day = self.current_guess
+                self.guessing_year = True
+                self.current_guess = 1962  # Start with a reasonable middle year
+                self.make_new_guess()
+            else:  # If we're guessing year
                 self.show_result()
         elif answer == "earlier":
             if self.guessing_month:
                 self.max_month = self.current_guess - 1
+            elif self.guessing_year:
+                self.max_year = self.current_guess - 1
             else:
                 self.max_day = self.current_guess - 1
             self.make_new_guess()
         else:  # later
             if self.guessing_month:
                 self.min_month = self.current_guess + 1
+            elif self.guessing_year:
+                self.min_year = self.current_guess + 1
             else:
                 self.min_day = self.current_guess + 1
             self.make_new_guess()
@@ -171,6 +184,13 @@ class BirthdayGuesser:
                 return
             self.current_guess = (self.min_month + self.max_month) // 2
             self.question_label.config(text=f"Is your birthday in {self.months[self.current_guess]}?")
+        elif self.guessing_year:
+            if self.min_year > self.max_year:
+                self.question_label.config(text="Something went wrong!\nPlease play again.")
+                self.show_reset()
+                return
+            self.current_guess = (self.min_year + self.max_year) // 2
+            self.question_label.config(text=f"Were you born in {self.current_guess}?")
         else:
             if self.min_day > self.max_day:
                 self.question_label.config(text="Something went wrong!\nPlease play again.")
@@ -188,9 +208,9 @@ class BirthdayGuesser:
         self.later_button.pack_forget()
         
         # Show result
-        suffix = 'th' if self.current_guess not in [1,21,31] else 'st' if self.current_guess in [1,21,31] else 'nd' if self.current_guess == 2 else 'rd'
+        suffix = 'th' if self.chosen_day not in [1,21,31] else 'st' if self.chosen_day in [1,21,31] else 'nd' if self.chosen_day == 2 else 'rd'
         self.result_label.config(
-            text=f"I got it! Your birthday is {self.months[self.chosen_month]} {self.current_guess}{suffix}!\nI found it in {self.attempts} attempts!"
+            text=f"I got it! Your birthday is {self.months[self.chosen_month]} {self.chosen_day}{suffix}, {self.current_guess}!\nI found it in {self.attempts} attempts!"
         )
         self.show_reset()
     
@@ -200,27 +220,72 @@ class BirthdayGuesser:
     def reset_game(self):
         # Reset variables
         self.guessing_month = True
+        self.guessing_year = False
         self.min_month = 1
         self.max_month = 12
         self.min_day = 1
         self.max_day = 31
+        self.min_year = 0
+        self.max_year = 5000
         self.current_guess = 6
         self.attempts = 0
         self.chosen_month = None
+        self.chosen_day = None
         
         # Reset UI
         self.result_label.config(text="")
         self.reset_button.pack_forget()
         self.attempts_label.config(text=f"Attempts: {self.attempts}")
         
-        # Show question and buttons again
+        # Show question again
         self.question_label.config(text=f"Is your birthday in {self.months[self.current_guess]}?")
         self.question_label.pack(pady=30)
         
-        # Recreate button frame
-        button_frame = tk.Frame(self.game_frame, bg='white')
-        button_frame.pack(pady=20)
+        # Destroy old button frame and all its children
+        self.button_frame.destroy()
         
-        self.earlier_button.pack(in_=button_frame, side=tk.LEFT, padx=10)
-        self.correct_button.pack(in_=button_frame, side=tk.LEFT, padx=10)
-        self.later_button.pack(in_=button_frame, side=tk.LEFT, padx=10) 
+        # Create new button frame
+        self.button_frame = tk.Frame(self.game_frame, bg='white')
+        self.button_frame.pack(pady=20)
+        
+        # Create new buttons
+        self.earlier_button = tk.Button(
+            self.button_frame,
+            text="Earlier",
+            font=self.game_font,
+            width=10,
+            command=lambda: self.process_answer("earlier"),
+            bg='white',
+            relief='solid',
+            cursor='hand2'
+        )
+        self.earlier_button.pack(side=tk.LEFT, padx=10)
+        
+        self.correct_button = tk.Button(
+            self.button_frame,
+            text="Correct!",
+            font=self.game_font,
+            width=10,
+            command=lambda: self.process_answer("correct"),
+            bg='white',
+            relief='solid',
+            cursor='hand2'
+        )
+        self.correct_button.pack(side=tk.LEFT, padx=10)
+        
+        self.later_button = tk.Button(
+            self.button_frame,
+            text="Later",
+            font=self.game_font,
+            width=10,
+            command=lambda: self.process_answer("later"),
+            bg='white',
+            relief='solid',
+            cursor='hand2'
+        )
+        self.later_button.pack(side=tk.LEFT, padx=10)
+        
+        # Add hover effects to new buttons
+        for btn in [self.earlier_button, self.correct_button, self.later_button]:
+            btn.bind('<Enter>', lambda e, b=btn: b.configure(bg='#f0f0f0'))
+            btn.bind('<Leave>', lambda e, b=btn: b.configure(bg='white')) 
