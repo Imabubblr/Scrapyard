@@ -60,6 +60,12 @@ class MenuScreen:
         scrollbar = tk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
         scrollable_frame = tk.Frame(canvas, bg='white')
 
+        # Add mouse wheel binding
+        canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(-1 * (event.delta // 120), "units"))
+        # For Linux/Unix systems
+        canvas.bind_all("<Button-4>", lambda event: canvas.yview_scroll(-1, "units"))
+        canvas.bind_all("<Button-5>", lambda event: canvas.yview_scroll(1, "units"))
+
         scrollable_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
