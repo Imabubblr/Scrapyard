@@ -8,65 +8,86 @@ class GamblingGame:
         self.money = 10000
         self.f = False
         
-        # Create game frame with white background
+        # Create game frame with reduced padding
         self.game_frame = tk.Frame(self.parent, bg='white')
-        self.game_frame.pack(expand=True, fill='both', padx=20, pady=20)
+        self.game_frame.pack(expand=True, fill='both', padx=20, pady=10)  # Reduced pady
         
-        # Create the GUI elements with consistent styling
+        # Create the GUI elements with smaller fonts and padding
         self.balance_label = tk.Label(
             self.game_frame, 
             text=f"Your balance: ${self.money}",
-            font=("Arial", 24),
-            bg='white'
+            font=("Arial", 20),  # Reduced font size
+            bg='white',
+            fg='black'
         )
-        self.balance_label.pack(pady=10)
-        
+        self.balance_label.pack(pady=5)  # Reduced padding
+
+        # Create slot machine display frame with less padding
+        self.slot_frame = tk.Frame(self.game_frame, bg='white', pady=10)  # Reduced padding
+        self.slot_frame.pack()
+
+        # Create three labels for slot numbers with smaller size
+        self.slot_labels = []
+        for i in range(3):
+            slot = tk.Label(
+                self.slot_frame,
+                text="0",
+                font=("Arial", 36),  # Reduced font size
+                width=2,  # Reduced width
+                relief='solid',
+                bg='white',
+                fg='black',
+                padx=5  # Reduced padding
+            )
+            slot.pack(side=tk.LEFT, padx=3)  # Reduced padding
+            self.slot_labels.append(slot)
+
         self.start_button = tk.Button(
             self.game_frame,
             text="Start Game",
-            font=("Arial", 18),
+            font=("Arial", 14),  # Reduced font size
             command=self.start_game,
             bg='white',
             relief='solid',
             cursor='hand2'
         )
-        self.start_button.pack(pady=10)
+        self.start_button.pack(pady=5)  # Reduced padding
 
         self.bet_label = tk.Label(
             self.game_frame,
-            text="Enter your gamble amount:",
-            font=("Arial", 18),
+            text="Enter your bet amount:",
+            font=("Arial", 14),  # Reduced font size
             bg='white'
         )
-        self.bet_label.pack(pady=5)
+        self.bet_label.pack(pady=2)  # Reduced padding
 
         self.bet_entry = tk.Entry(
             self.game_frame,
-            font=("Arial", 18),
-            width=20
+            font=("Arial", 14),  # Reduced font size
+            width=15  # Reduced width
         )
-        self.bet_entry.pack(pady=5)
+        self.bet_entry.pack(pady=2)  # Reduced padding
 
         self.gamble_button = tk.Button(
             self.game_frame,
-            text="Gamble",
-            font=("Arial", 18),
+            text="Spin!",
+            font=("Arial", 14),  # Reduced font size
             state=tk.DISABLED,
             command=self.gamble,
             bg='white',
             relief='solid',
             cursor='hand2'
         )
-        self.gamble_button.pack(pady=10)
+        self.gamble_button.pack(pady=5)  # Reduced padding
 
         self.result_label = tk.Label(
             self.game_frame,
             text="",
-            font=("Arial", 20),
+            font=("Arial", 14),  # Reduced font size
             bg='white',
             wraplength=500
         )
-        self.result_label.pack(pady=20)
+        self.result_label.pack(pady=5)  # Reduced padding
 
     def start_game(self):
         """Start the game."""
@@ -85,39 +106,56 @@ class GamblingGame:
                 return
             if amount > self.money:
                 self.result_label.config(text="You don't have enough money. Betting all-in!")
-                amount = self.money  # All-in if they try to bet more than they have
+                amount = self.money
         except ValueError:
             self.result_label.config(text="Please enter a valid number!")
             return
 
-        # Simulate the random item selection
-        item1 = random.randint(1, 4)
-        item2 = random.randint(1, 4)
-        item3 = random.randint(1, 4)
+        # Disable gamble button during animation
+        self.gamble_button.config(state=tk.DISABLED)
+        
+        # Start the slot machine animation
+        self.animate_slots(amount)
 
-        # Show the drawn numbers
-        self.result_label.config(text=f"Items drawn: {item1}  {item2}  {item3}")
+    def animate_slots(self, amount):
+        """Animate the slot machine numbers."""
+        spins = 0
+        max_spins = 20  # Number of animation frames
+        final_numbers = [random.randint(1, 4) for _ in range(3)]
+        
+        def spin():
+            nonlocal spins
+            if spins < max_spins:
+                # Update each slot with random numbers during animation
+                for label in self.slot_labels:
+                    label.config(text=str(random.randint(1, 4)))
+                spins += 1
+                # Schedule next animation frame
+                self.parent.after(50, spin)
+            else:
+                # Show final numbers
+                for i, number in enumerate(final_numbers):
+                    self.slot_labels[i].config(text=str(number))
+                # Check results after animation
+                self.check_result(final_numbers[0], final_numbers[1], final_numbers[2], amount)
+                self.gamble_button.config(state=tk.NORMAL)
 
-        # Simulate a pause to show suspense
-        self.parent.after(1000, self.check_result, item1, item2, item3, amount)
+        spin()
 
     def check_result(self, item1, item2, item3, amount):
         """Check the result of the gamble."""
-        # Win condition: all items are the same
         if item1 == item2 == item3:
             win_amount = amount * 10
             self.money += win_amount
-            self.result_label.config(text=f"You win! You won: ${win_amount}\nYour new balance: ${self.money}")
+            self.result_label.config(text=f"🎉 JACKPOT! You won: ${win_amount} 🎉")
         else:
             self.money -= amount
-            self.result_label.config(text=f"You lose! You lost: ${amount}\nHave 3 matching numbers to win\nYour new balance: ${self.money}")
+            self.result_label.config(text=f"Better luck next time! You lost: ${amount}\nMatch 3 numbers to win!")
         
-        # Update balance
         self.update_balance_label()
 
-        # Disable betting if out of money
         if self.money <= 0:
-            self.result_label.config(text="You're out of money! Game Over!")
+            self.result_label.config(text="💔 You're out of money! Game Over! 💔")
             self.gamble_button.config(state=tk.DISABLED)
 
     def update_balance_label(self):
