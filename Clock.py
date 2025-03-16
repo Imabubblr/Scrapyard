@@ -1,114 +1,105 @@
 import tkinter as tk
 from datetime import datetime
 
-root = tk.Tk()
-root.title("Time Adjuster")
-root.geometry("400x250")
+class Clock:
+    def __init__(self, master):
+        self.master = master
+        self.hour = 1
+        self.minute = 0
+        self.is_pm = False  # False = AM, True = PM
+        
+        self.setup_ui()
+        self.update_time_display()
 
-# Initialize hour, minute, and AM/PM variables
-hour = 1
-minute = 0
-is_pm = False  # False = AM, True = PM
+    def setup_ui(self):
+        # Label to display the current time
+        self.time_label = tk.Label(self.master, text=f"{self.hour:02d}:{self.minute:02d} {'PM' if self.is_pm else 'AM'}", font=("Arial", 24))
+        self.time_label.pack(pady=20)
 
-# Function to update the time display
-def update_time_display():
-    # Update the time label
-    time_label.config(text=f"{hour:02d}:{minute:02d} {'PM' if is_pm else 'AM'}")
-    
-    # Check if the clock matches the current time
-    check_current_time()
+        # Label to display the status (correct/incorrect time)
+        self.status_label = tk.Label(self.master, text="", font=("Arial", 14))
+        self.status_label.pack(pady=10)
 
-# Function to check if the clock matches the current time
-def check_current_time():
-    # Get the current system time
-    now = datetime.now()
-    current_hour = now.hour
-    current_minute = now.minute
-    current_is_pm = current_hour >= 12  # Determine if current time is PM
+        # Buttons for adjusting the hour
+        hour_frame = tk.Frame(self.master)
+        hour_frame.pack()
 
-    # Convert 24-hour format to 12-hour format
-    if current_hour > 12:
-        current_hour -= 12
-    elif current_hour == 0:
-        current_hour = 12
+        Up = tk.Button(hour_frame, text="Hour +", command=self.changehour, width=12, height=3)
+        Up.pack(side="left", padx=5)
 
-    # Compare the clock time with the current time
-    if (hour == current_hour and minute == current_minute and is_pm == current_is_pm):
-        status_label.config(text="Time is correct!", fg="green")
-    else:
-        status_label.config(text="Time is incorrect.", fg="red")
+        Down = tk.Button(hour_frame, text="Hour -", command=self.changehours, width=12, height=3)
+        Down.pack(side="left", padx=5)
 
-# Function to increment the hour
-def changehour():
-    global hour
-    hour += 1
-    if hour == 13:
-        hour = 1
-    update_time_display()
+        # Buttons for adjusting the minute
+        minute_frame = tk.Frame(self.master)
+        minute_frame.pack()
 
-# Function to decrement the hour
-def changehours():
-    global hour
-    hour -= 1
-    if hour == 0:
-        hour = 12
-    update_time_display()
+        MinUp = tk.Button(minute_frame, text="Minute +", command=self.changemin, width=12, height=3)
+        MinUp.pack(side="left", padx=5)
 
-# Function to increment the minute
-def changemin():
-    global minute
-    minute += 1
-    if minute == 60:
-        minute = 0
-    update_time_display()
+        MinDown = tk.Button(minute_frame, text="Minute -", command=self.changemins, width=12, height=3)
+        MinDown.pack(side="left", padx=5)
 
-# Function to decrement the minute
-def changemins():
-    global minute
-    minute -= 1
-    if minute == -1:
-        minute = 59
-    update_time_display()
+        # Button to toggle AM/PM
+        am_pm_button = tk.Button(self.master, text="Toggle AM/PM", command=self.toggle_am_pm, width=12, height=3)
+        am_pm_button.pack(pady=10)
 
-# Function to toggle AM/PM
-def toggle_am_pm():
-    global is_pm
-    is_pm = not is_pm
-    update_time_display()
+    # Function to update the time display
+    def update_time_display(self):
+        self.time_label.config(text=f"{self.hour:02d}:{self.minute:02d} {'PM' if self.is_pm else 'AM'}")
+        self.check_current_time()
 
-# Label to display the current time
-time_label = tk.Label(root, text=f"{hour:02d}:{minute:02d} {'PM' if is_pm else 'AM'}", font=("Arial", 24))
-time_label.pack(pady=20)
+    # Function to check if the clock matches the current time
+    def check_current_time(self):
+        now = datetime.now()
+        current_hour = now.hour
+        current_minute = now.minute
+        current_is_pm = current_hour >= 12  # Determine if current time is PM
 
-# Label to display the status (correct/incorrect time)
-status_label = tk.Label(root, text="", font=("Arial", 14))
-status_label.pack(pady=10)
+        if current_hour > 12:
+            current_hour -= 12
+        elif current_hour == 0:
+            current_hour = 12
 
-# Buttons for adjusting the hour
-hour_frame = tk.Frame(root)
-hour_frame.pack()
+        if (self.hour == current_hour and self.minute == current_minute and self.is_pm == current_is_pm):
+            self.status_label.config(text="Time is correct!", fg="green")
+        else:
+            self.status_label.config(text="Time is incorrect.", fg="red")
 
-Up = tk.Button(hour_frame, text="Hour +", command=changehour)
-Up.pack(side="left", padx=5)
+    # Function to increment the hour
+    def changehour(self):
+        self.hour += 1
+        if self.hour == 13:
+            self.hour = 1
+        self.update_time_display()
 
-Down = tk.Button(hour_frame, text="Hour -", command=changehours)
-Down.pack(side="left", padx=5)
+    # Function to decrement the hour
+    def changehours(self):
+        self.hour -= 1
+        if self.hour == 0:
+            self.hour = 12
+        self.update_time_display()
 
-# Buttons for adjusting the minute
-minute_frame = tk.Frame(root)
-minute_frame.pack()
+    # Function to increment the minute
+    def changemin(self):
+        self.minute += 1
+        if self.minute == 60:
+            self.minute = 0
+        self.update_time_display()
 
-MinUp = tk.Button(minute_frame, text="Minute +", command=changemin)
-MinUp.pack(side="left", padx=5)
+    # Function to decrement the minute
+    def changemins(self):
+        self.minute -= 1
+        if self.minute == -1:
+            self.minute = 59
+        self.update_time_display()
 
-MinDown = tk.Button(minute_frame, text="Minute -", command=changemins)
-MinDown.pack(side="left", padx=5)
+    # Function to toggle AM/PM
+    def toggle_am_pm(self):
+        self.is_pm = not self.is_pm
+        self.update_time_display()
 
-# Button to toggle AM/PM
-am_pm_button = tk.Button(root, text="Toggle AM/PM", command=toggle_am_pm)
-am_pm_button.pack(pady=10)
-
-# Initial time check
-update_time_display()
-
-root.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    clock_app = Clock(root)
+    root.mainloop()

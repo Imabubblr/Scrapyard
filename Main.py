@@ -71,13 +71,14 @@ class MenuScreen:
             "Impractical To-Do List": "Project 3 Page",
             "GAMBLING": "Project 4 Page",
             "Escaping Button": "Project 5 Page",
-            "Broken Metronome": "Project 6 Page",
-            "Time It": "Project 7 Page",
-            "Study Guide": "Project 8 Page",
-            "FREE ROBUX!! (REAL)": "Project 9 Page",
-            "Pointless Clicker": "Project 10 Page",
-            "Random Date Checker": "Project 11 Page",
-            "Sheep": "Project 12 Page"
+            "Time It": "Project 6 Page",
+            "Study Guide": "Project 7 Page",
+            "FREE ROBUX!! (REAL)": "Project 8 Page",
+            "Pointless Clicker": "Project 9 Page",
+            "Random Date Checker": "Project 10 Page",
+            "Sheep": "Project 11 Page",
+            "Even or Odd?": "Project 12 Page",
+            "Clock": "Project 13 Page"
         }
         
         # Add color animation variables
@@ -270,8 +271,6 @@ class MenuScreen:
         # Create a new frame for the project page
         page_frame = tk.Frame(self.root)
         page_frame.pack(fill='both', expand=True)
-        
-        from Metronome import BrokenMetronome
 
         # Back button at the top
         back_button = tk.Button(
@@ -310,9 +309,6 @@ class MenuScreen:
         elif project_name == "Escaping Button":
             from Click_The_Button import EscapingButton
             game = EscapingButton(page_frame)
-        elif project_name == "Broken Metronome":
-            from Metronome import BrokenMetronome
-            game = BrokenMetronome(page_frame)
         elif project_name == "Time It":
             from Timeit import StopwatchApp
             game = StopwatchApp(page_frame)
@@ -330,7 +326,13 @@ class MenuScreen:
             game = DateChecker(page_frame)
         elif project_name == "Sheep":
             from Sheep import SheepJumpingApp
-            game = SheepJumpingApp(page_frame)  # Integrate SheepJumpingApp into the existing frame
+            game = SheepJumpingApp(page_frame)
+        elif project_name == "Even or Odd?":
+            from Evenorodd import EvenOddChecker
+            game = EvenOddChecker(page_frame)
+        elif project_name == "Clock":
+            from Clock import Clock
+            game = Clock(page_frame)
         else:
             # Add your project-specific content here
             content = tk.Label(
