@@ -1,5 +1,6 @@
 import tkinter as tk
 import random
+import pygame
 import time
 
 class GamblingGame:
@@ -7,6 +8,8 @@ class GamblingGame:
         self.parent = parent_frame
         self.money = 10000
         self.f = False
+        pygame.mixer.init()
+        self.win_sound = pygame.mixer.Sound("slot-machine-payout-81725.wav")
         
         # Create game frame with reduced padding
         self.game_frame = tk.Frame(self.parent, bg='white')
@@ -148,6 +151,7 @@ class GamblingGame:
             win_amount = amount * 10
             self.money += win_amount
             self.result_label.config(text=f"🎉 JACKPOT! You won: ${win_amount} 🎉")
+            self.win_sound.play()
         else:
             self.money -= amount
             self.result_label.config(text=f"Better luck next time! You lost: ${amount}\nMatch 3 numbers to win!")

@@ -1,19 +1,23 @@
 import tkinter as tk
 import time
+import pygame
 
 class SheepJumpingApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Jumping Sheep")
-        self.root.geometry("500x300")
-        
-        self.canvas = tk.Canvas(root, width=500, height=300, bg="lightblue")
+    def __init__(self, parent):
+        self.parent = parent
+        self.canvas = tk.Canvas(parent, width=500, height=300, bg="lightblue")
         self.canvas.pack()
+        
+        pygame.mixer.init()
+        self.Sheep_sound = pygame.mixer.Sound("Sheep.wav")
+        
+        #add a blue sky
+        self.canvas.create_rectangle(0, 0, 500, 300, fill="skyblue")
         
         # Add grass at the bottom
         self.canvas.create_rectangle(0, 250, 500, 300, fill="green", outline="")
         
-        # Draw the fence above the grass (adjusted y-coordinate to 230)
+        # Draw the fence above the grass
         self.fence = self.canvas.create_rectangle(220, 230, 240, 250, fill="saddlebrown")
         self.canvas.create_line(200, 230, 260, 230, width=4, fill="black")
         self.canvas.create_line(200, 240, 260, 240, width=4, fill="black")
@@ -34,6 +38,7 @@ class SheepJumpingApp:
         self.jump_text = None  # Variable to store reference to the jump count text
         
         # Start first jump after a short delay
+        self.root = parent  # Reference to the parent window
         self.root.after(1000, self.jump_sheep)
 
     def jump_sheep(self):
@@ -72,9 +77,6 @@ class SheepJumpingApp:
         # Reset sheep position after fading
         self.reset_sheep()
 
-        # After returning to start, show "Sheep" in a message box
-        self.show_sheep_message()
-
         # Set up the next jump after a brief delay
         self.root.after(1000, self.jump_sheep)
 
@@ -98,18 +100,3 @@ class SheepJumpingApp:
         self.canvas.coords(self.sheep_head, 150, 190, 170, 210)
         for i, (x1, y1, x2, y2) in enumerate([(110, 220, 110, 240), (120, 220, 120, 240), (140, 220, 140, 240), (150, 220, 150, 240)]):
             self.canvas.coords(self.sheep_legs[i], x1, y1, x2, y2)
-
-    def show_sheep_message(self):
-        """Show a custom message box with the text 'Sheep' and auto-close after 3 seconds."""
-        message_box = tk.Toplevel(self.root)  # Create a new top-level window
-        message_box.title("Jumping Sheep")
-        
-        label = tk.Label(message_box, text="Sheep", font=("Arial", 16), padx=20, pady=20)
-        label.pack()
-        
-        # Close the message box after 3 seconds
-        message_box.after(3000, message_box.destroy)
-
-root = tk.Tk()
-app = SheepJumpingApp(root)
-root.mainloop()

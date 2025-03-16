@@ -77,7 +77,7 @@ class MenuScreen:
             "FREE ROBUX!! (REAL)": "Project 9 Page",
             "Pointless Clicker": "Project 10 Page",
             "Random Date Checker": "Project 11 Page",
-            "Block Counter": "Project 12 Page"
+            "Sheep": "Project 12 Page"
         }
         
         # Add color animation variables
@@ -271,6 +271,8 @@ class MenuScreen:
         page_frame = tk.Frame(self.root)
         page_frame.pack(fill='both', expand=True)
         
+        from Metronome import BrokenMetronome
+
         # Back button at the top
         back_button = tk.Button(
             page_frame,
@@ -289,15 +291,11 @@ class MenuScreen:
             page_frame,
             text=project_name,
             font=self.title_font,
-            #bg='white',
             fg=self.current_theme['fg']
         )
         title.pack(pady=20)
         
-        if project_name == "Time It":
-            from Timeit import StopwatchApp
-            game = StopwatchApp(page_frame)
-        elif project_name == "Impossible Rock Paper Scissors":
+        if project_name == "Impossible Rock Paper Scissors":
             from RPS import ImpossibleRPS
             game = ImpossibleRPS(page_frame)
         elif project_name == "Guess Your Birthday":
@@ -315,7 +313,7 @@ class MenuScreen:
         elif project_name == "Broken Metronome":
             from Metronome import BrokenMetronome
             game = BrokenMetronome(page_frame)
-        elif project_name == "Reflexes Game":
+        elif project_name == "Time It":
             from Timeit import StopwatchApp
             game = StopwatchApp(page_frame)
         elif project_name == "Study Guide":
@@ -327,13 +325,18 @@ class MenuScreen:
         elif project_name == "Pointless Clicker":
             from clickyclacky import PointlessClicker
             game = PointlessClicker(page_frame)
+        elif project_name == "Random Date Checker":
+            from Todayisnot import DateChecker
+            game = DateChecker(page_frame)
+        elif project_name == "Sheep":
+            from Sheep import SheepJumpingApp
+            game = SheepJumpingApp(page_frame)  # Integrate SheepJumpingApp into the existing frame
         else:
             # Add your project-specific content here
             content = tk.Label(
                 page_frame,
                 text=f"Content for {project_name}",
                 font=self.menu_font,
-                #bg='white',
                 fg=self.current_theme['fg']
             )
             content.pack(expand=True)
