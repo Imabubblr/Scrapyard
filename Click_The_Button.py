@@ -1,62 +1,81 @@
 import tkinter as tk
 import random
 
-def move_button(event):
-    """Move the button to a random position if the cursor is close to it, ensuring it's at least 250 pixels away from the last position."""
-    # Get the mouse cursor's position
-    mouse_x, mouse_y = event.x_root, event.y_root
-    
-    # Get the position of the button
-    button_x, button_y = older_button.winfo_rootx(), older_button.winfo_rooty()
+class EscapingButton:
+    def __init__(self, parent):
+        self.parent = parent
+        
+        # Create the label
+        self.title_label = tk.Label(parent, text="Try to click the button!", font=("Arial", 12, "bold"))
+        self.title_label.pack(pady=10)
 
-    # Calculate the distance between the button and the cursor
-    distance = ((mouse_x - button_x)**2 + (mouse_y - button_y)**2)**0.5
+        # Create a container frame for the canvas
+        self.button_size = 60  # Diameter of the circle
+        self.container = tk.Frame(parent, width=self.button_size, height=self.button_size,
+                                bg=parent.cget('bg'))
+        self.container.place(x=200, y=400)
+        # Prevent the frame from resizing
+        self.container.pack_propagate(False)
 
-    # If the distance is less than a threshold (e.g., 100 pixels), move the button
-    if distance < 100:  # Threshold for moving the button
-        # Get the button's dimensions
-        button_width = older_button.winfo_width()
-        button_height = older_button.winfo_height()
+        # Create a canvas for the circular button
+        self.canvas = tk.Canvas(self.container, width=self.button_size, height=self.button_size, 
+                              highlightthickness=0, bg=parent.cget('bg'))
+        self.canvas.pack(expand=True)
 
-        # Define the minimum distance between the old and new positions (250px)
-        min_distance = 250
+        # Create the circular button
+        self.button = self.canvas.create_oval(2, 2, self.button_size-2, self.button_size-2, 
+                                            fill='#ff0000', outline='#cc0000')
+        self.button_text = self.canvas.create_text(self.button_size/2, self.button_size/2, 
+                                                 text="Click!", fill='white')
 
-        # Get the window's width and height (1000x1500)
-        window_width = root.winfo_width()
-        window_height = root.winfo_height()
+        # Bind click and hover events
+        self.canvas.bind('<Button-1>', self.button_clicked)
+        self.canvas.bind('<Enter>', self.on_hover)
+        self.canvas.bind('<Leave>', self.on_leave)
 
-        # Ensure that the button will stay within the boundaries of the window
-        max_x = window_width - button_width
-        max_y = window_height - button_height
+        # Bind mouse motion to move_button function
+        parent.bind("<Motion>", self.move_button)
 
-        # Try random positions until we find one that's at least 250px away from the last position
-        while True:
-            new_x = random.randint(0, max_x)
-            new_y = random.randint(0, max_y)
+    def button_clicked(self, event=None):
+        self.title_label.config(text="Button Clicked!")
 
-            # Calculate the distance from the previous position
-            dist = ((new_x - button_x) ** 2 + (new_y - button_y) ** 2) ** 0.5
+    def on_hover(self, event):
+        self.canvas.itemconfig(self.button, fill='#ff3333')
 
-            # If the new position is far enough and within the window bounds, move the button
-            if dist >= min_distance:
-                older_button.place(x=new_x, y=new_y)
-                break
+    def on_leave(self, event):
+        self.canvas.itemconfig(self.button, fill='#ff0000')
 
-# Create the main window
-root = tk.Tk()
-root.title("Click the Button")
-root.geometry("1000x1500")  # Set the window size to 1000x1500
+    def move_button(self, event):
+        """Move the button to a random position if the cursor is close to it"""
+        # Get the mouse cursor's position
+        mouse_x, mouse_y = event.x_root, event.y_root
+        
+        # Get the position of the canvas
+        button_x = self.container.winfo_rootx()
+        button_y = self.container.winfo_rooty()
 
-# Create the label
-title_label = tk.Label(root, text="Click The button", font=("Arial", 12, "bold"))
-title_label.pack(pady=10)
+        # Calculate the distance between the button and the cursor
+        distance = ((mouse_x - button_x)**2 + (mouse_y - button_y)**2)**0.5
 
-# Create the button and place it in the window initially at a fixed position
-older_button = tk.Button(root, text="Click me", command=lambda: title_label.config(text="Button Clicked!"))
-older_button.place(x=200, y=400)  # Initial position
+        # If the distance is less than a threshold (e.g., 100 pixels), move the button
+        if distance < 100:  # Threshold for moving the button
+            # Get the parent's width and height
+            window_width = self.parent.winfo_width()
+            window_height = self.parent.winfo_height()
 
-# Bind mouse motion to move_button function
-root.bind("<Motion>", move_button)
+            # Ensure that the button will stay within the boundaries
+            max_x = window_width - self.button_size
+            max_y = window_height - self.button_size
 
-# Run the Tkinter event loop
-root.mainloop()
+            # Try random positions until we find one that's at least 250px away
+            while True:
+                new_x = random.randint(0, max_x)
+                new_y = random.randint(0, max_y)
+
+                # Calculate the distance from the previous position
+                dist = ((new_x - button_x) ** 2 + (new_y - button_y) ** 2) ** 0.5
+
+                # If the new position is far enough and within bounds, move the button
+                if dist >= 250:  # minimum distance of 250px
+                    self.container.place(x=new_x, y=new_y)
+                    break
