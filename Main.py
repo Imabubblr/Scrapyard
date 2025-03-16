@@ -75,7 +75,9 @@ class MenuScreen:
             "Time It": "Project 7 Page",
             "Study Guide": "Project 8 Page",
             "FREE ROBUX!! (REAL)": "Project 9 Page",
-            "Pointless Clicker": "Project 10 Page"
+            "Pointless Clicker": "Project 10 Page",
+            "Random Date Checker": "Project 11 Page",
+            "Block Counter": "Project 12 Page"
         }
         
         # Add color animation variables
@@ -183,11 +185,13 @@ class MenuScreen:
             font=self.menu_font,
             fg=self.current_theme['button_fg'],
             cursor='hand2',
-            relief='flat',
-            borderwidth=0,
+            relief='raised',  # Changed to raised for a 3D effect
+            borderwidth=2,
+            width=3,  # Increased width for a larger button
+            height=1,  # Increased height for a larger button
             command=self.toggle_dark_mode
         )
-        self.dark_mode_button.pack()
+        self.dark_mode_button.pack(pady=5)
         
         # Title with subtle shadow effect
         title_frame = tk.Frame(scrollable_frame)
