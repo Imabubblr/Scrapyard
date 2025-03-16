@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import font as tkfont
+import random  # Add this at the top with other imports
 
 class MenuScreen:
     def __init__(self, root):
@@ -34,14 +35,15 @@ class MenuScreen:
         
         # Menu items with their corresponding page titles
         self.menu_items = {
+            "Time It": "Time It",
             "Impossible Rock Paper Scissors": "Project 1 Page",
             "Guess Your Birthday": "Project 2 Page",
             "Impractical To-Do List": "Project 3 Page",
             "GAMBLING": "Project 4 Page",
-            "Project 5": "Project 5 Page",
-            "Project 6": "Project 6 Page",
-            "Project 7": "Project 7 Page",
-            "Project 8": "Project 8 Page",
+            "Escaping Button": "Project 5 Page",
+            "Broken Metronome": "Project 6 Page",
+            "Reflexes Game": "Project 7 Page",
+            "Study Guide": "Project 8 Page",
             "Project 9": "Project 9 Page",
             "Project 10": "Project 10 Page"
         }
@@ -86,9 +88,31 @@ class MenuScreen:
 
         # Title with center alignment
         title = tk.Label(scrollable_frame, text="Fun Projects", font=self.title_font, bg='white', fg='black')
-        title.pack(pady=40)
+        title.pack(pady=(40, 20))  # Reduced bottom padding
         
-        # Create buttons
+        # Random project button
+        random_button = tk.Button(
+            scrollable_frame,
+            text="Random",
+            font=self.menu_font,
+            bg='white',
+            fg='#0066ff',  # Blue color to make it stand out
+            cursor='hand2',
+            relief='solid',
+            borderwidth=2,
+            activebackground='#f0f0f0',
+            activeforeground='#0066ff',
+            width=15,
+            height=1,
+            command=self.show_random_project
+        )
+        random_button.pack(pady=(0, 30))  # Add padding below the button
+        
+        # Add hover effects for random button
+        random_button.bind('<Enter>', lambda e, btn=random_button: self.on_hover(btn))
+        random_button.bind('<Leave>', lambda e, btn=random_button: self.on_leave(btn))
+        
+        # Create buttons for projects
         for item in self.menu_items.keys():
             button_frame = tk.Frame(scrollable_frame, bg='white')
             button_frame.pack(fill='x', pady=self.button_padding)
@@ -147,7 +171,10 @@ class MenuScreen:
         )
         title.pack(pady=20)
         
-        if project_name == "Impossible Rock Paper Scissors":
+        if project_name == "Time It":
+            from Timeit import StopwatchApp
+            game = StopwatchApp(page_frame)
+        elif project_name == "Impossible Rock Paper Scissors":
             from RPS import ImpossibleRPS
             game = ImpossibleRPS(page_frame)
         elif project_name == "Guess Your Birthday":
@@ -159,6 +186,18 @@ class MenuScreen:
         elif project_name == "GAMBLING":
             from Gambling import GamblingGame
             game = GamblingGame(page_frame)
+        elif project_name == "Escaping Button":
+            from Click_The_Button import EscapingButton
+            game = EscapingButton(page_frame)
+        elif project_name == "Broken Metronome":
+            from Metronome import BrokenMetronome
+            game = BrokenMetronome(page_frame)
+        elif project_name == "Reflexes Game":
+            from Timeit import StopwatchApp
+            game = StopwatchApp(page_frame)
+        elif project_name == "Study Guide":
+            from Studyhelp import StudyGuide
+            game = StudyGuide(page_frame)
         else:
             # Add your project-specific content here
             content = tk.Label(
@@ -202,6 +241,11 @@ class MenuScreen:
                     for widget in child.winfo_children():
                         if isinstance(widget, tk.Canvas):
                             widget.itemconfig(1, width=event.width - 50)
+
+    def show_random_project(self):
+        # Choose a random project from the menu items
+        random_project = random.choice(list(self.menu_items.keys()))
+        self.show_project_page(random_project)
 
 if __name__ == "__main__":
     root = tk.Tk()

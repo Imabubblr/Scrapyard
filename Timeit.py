@@ -3,41 +3,101 @@ import time
 import random
 
 class StopwatchApp:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Stopwatch")
-        self.root.geometry("500x300")  # Increased window size to accommodate more information
-
+    def __init__(self, parent_frame):
         # Initialize time variables
         self.running = False
         self.start_time = 0
         self.elapsed_time = 0
-        self.stopped_once = False  # Track if the stopwatch has stopped once
-        self.fake_time = 0  # Store fake time when stopping
+        self.stopped_once = False
+        self.fake_time = 0
+        self.money = 1000.00
 
-        self.money = 100.00  # Initial amount of money
+        # Create main container frame
+        self.container = tk.Frame(parent_frame, bg='white')
+        self.container.pack(fill='both', expand=True)
 
         # Create UI components
-        self.time_display = tk.Label(root, text="00:00.000", font=("Arial", 30))
+        self.time_display = tk.Label(
+            self.container, 
+            text="00:00.000", 
+            font=("Arial", 30),
+            bg='white'
+        )
         self.time_display.pack(pady=20)
 
-        self.start_button = tk.Button(root, text="Start", width=10, command=self.start)
+        # Button frame for better organization
+        button_frame = tk.Frame(self.container, bg='white')
+        button_frame.pack(pady=10)
+
+        self.start_button = tk.Button(
+            button_frame,
+            text="Start",
+            width=10,
+            command=self.start,
+            font=("Arial", 12),
+            bg='white',
+            cursor='hand2',
+            relief='solid'
+        )
         self.start_button.pack(side=tk.LEFT, padx=10)
 
-        self.stop_button = tk.Button(root, text="Stop", width=10, command=self.stop, state=tk.DISABLED)
+        self.stop_button = tk.Button(
+            button_frame,
+            text="Stop",
+            width=10,
+            command=self.stop,
+            state=tk.DISABLED,
+            font=("Arial", 12),
+            bg='white',
+            cursor='hand2',
+            relief='solid'
+        )
         self.stop_button.pack(side=tk.LEFT, padx=10)
 
-        self.reset_button = tk.Button(root, text="Reset", width=10, command=self.reset)
+        self.reset_button = tk.Button(
+            button_frame,
+            text="Reset",
+            width=10,
+            command=self.reset,
+            font=("Arial", 12),
+            bg='white',
+            cursor='hand2',
+            relief='solid'
+        )
         self.reset_button.pack(side=tk.LEFT, padx=10)
 
-        # You win/lose label (initially hidden)
-        self.result_label = tk.Label(root, text="", font=("Arial", 20))
+        # Result and money labels
+        self.result_label = tk.Label(
+            self.container,
+            text="",
+            font=("Arial", 20),
+            bg='white'
+        )
         self.result_label.pack(pady=20)
-        self.result_label.pack_forget()  # Hide it initially
+        self.result_label.pack_forget()
 
-        # Money display
-        self.money_label = tk.Label(root, text=f"Money: ${self.money:.2f}", font=("Arial", 14))
+        self.money_label = tk.Label(
+            self.container,
+            text=f"Money: ${self.money:.2f}",
+            font=("Arial", 14),
+            bg='white'
+        )
         self.money_label.pack(pady=10)
+
+        # Instructions
+        instructions = (
+            "Try to stop the timer at exactly 10 seconds!\n"
+            "Win up to $50 for getting close,\n"
+            "Lose $10 if you're too far off."
+        )
+        self.instructions_label = tk.Label(
+            self.container,
+            text=instructions,
+            font=("Arial", 12),
+            bg='white',
+            fg='#666666'
+        )
+        self.instructions_label.pack(pady=20)
 
     def update_time(self):
         if self.running:
@@ -57,16 +117,16 @@ class StopwatchApp:
             self.time_display.config(text=time_str)
 
             # Continue updating if the stopwatch is running
-            self.root.after(1, self.update_time)
+            self.container.after(1, self.update_time)
 
     def check_win_condition(self):
         """Check if the player wins or loses AFTER stopping."""
         difference_from_10 = abs(self.fake_time - 10)
 
-        if difference_from_10 < 0.25:
+        if difference_from_10 < 0.3:
             # The closer to 10, the more you win (max reward if exactly at 10.000)
             max_reward = 50  # Maximum possible reward
-            money_earned = max_reward * (1 - (difference_from_10 / 0.25))  # Scale reward based on closeness
+            money_earned = max_reward * (1 - (difference_from_10 / 0.3))  # Scale reward based on closeness
             self.money += money_earned
             self.result_label.config(text="You Win!", fg="green")
         
@@ -111,12 +171,3 @@ class StopwatchApp:
         
         # Keep the money value as is (do not reset it)
         self.money_label.config(text=f"Money: ${self.money:.2f}")  # Update money display
-
-# Create the Tkinter root window
-root = tk.Tk()
-
-# Create and run the stopwatch application
-app = StopwatchApp(root)
-
-# Start the Tkinter event loop
-root.mainloop()
