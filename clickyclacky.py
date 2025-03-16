@@ -63,13 +63,6 @@ class PointlessClicker:
             ["super", "mega", "ultra", "big", "soft"],
             weights=[25, 25, 10, 20, 20]
         )[0]
-        
-        if click_type == "ultra":
-            self.explosion_sound.play()
-            self.prompt_label.config(text="*** ULTRA CLICK! ***")
-        else:
-            self.click_sound.play()
-            self.prompt_label.config(text=f"{click_type.capitalize()} Click!")
             
         self.stats_label.config(text=f"Total Clicks: {self.n}")
 
