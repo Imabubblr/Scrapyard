@@ -10,8 +10,8 @@ class MenuScreen:
         self.current_frame = None
         
         # Set minimum window size
-        MIN_WIDTH = 800  # Increased minimum width
-        MIN_HEIGHT = 600  # Increased minimum height
+        MIN_WIDTH = 800
+        MIN_HEIGHT = 600
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
         
         # Set fixed window size
@@ -23,11 +23,40 @@ class MenuScreen:
         y = (root.winfo_screenheight() - default_height) // 2
         
         self.root.geometry(f"{default_width}x{default_height}+{x}+{y}")
-        # self.root.configure(bg='#ffffff')
         
-        # Create custom font with fixed sizing
-        self.title_font = tkfont.Font(family="Arial", size=36, weight="bold")
-        self.menu_font = tkfont.Font(family="Arial", size=24)
+        # Add dark mode settings first
+        self.dark_mode = False
+        self.light_theme = {
+            'bg': '#ffffff',
+            'fg': '#000000',
+            'button_fg': '#0066ff',
+            'subtitle_fg': '#555555',
+            'shadow': '#cccccc',
+            'border': '#dddddd'  # Light gray border
+        }
+        self.dark_theme = {
+            'bg': '#1a1a1a',
+            'fg': '#ffffff',
+            'button_fg': '#66b3ff',
+            'subtitle_fg': '#aaaaaa',
+            'shadow': '#111111',
+            'border': '#333333'  # Dark gray border
+        }
+        self.current_theme = self.light_theme
+        
+        # Add gradient settings
+        self.gradient_colors = ['#FF6B6B', '#4ECDC4']
+        self.gradient_speed = 0.002
+        self.color_speed = self.gradient_speed
+        
+        # Update font settings
+        self.title_font = tkfont.Font(family="Helvetica", size=42, weight="bold")
+        self.menu_font = tkfont.Font(family="Helvetica", size=20)
+        self.subtitle_font = tkfont.Font(family="Helvetica", size=16, slant="italic")
+        
+        # Add shadow effect settings
+        self.shadow_color = self.current_theme['shadow']
+        self.shadow_offset = 3
         
         # Fixed sizes
         self.canvas_width = 700
@@ -51,57 +80,63 @@ class MenuScreen:
         
         # Add color animation variables
         self.hue = 0
-        self.color_speed = 0.001
-        self.animate_colors()
         
         # Create main menu frame
         self.main_menu = self.create_main_menu()
         self.show_frame(self.main_menu)
+        
+        # Start color animation after everything is initialized
+        self.animate_colors()
 
     def animate_colors(self):
-        # Convert HSV to RGB (hue, 0.3, 1.0 for pastel colors)
-        rgb = colorsys.hsv_to_rgb(self.hue, 0.3, 1.0)
-        # Convert RGB values to hex color string
-        color = '#{:02x}{:02x}{:02x}'.format(
-            int(rgb[0] * 255),
-            int(rgb[1] * 255),
-            int(rgb[2] * 255)
-        )
-        
-        # Update background colors - modified version
-        self.root.configure(bg=color)
-        if self.current_frame:
-            def update_widget_colors(widget):
-                widget.configure(bg=color)
-                # Special handling for buttons
-                if isinstance(widget, tk.Button):
-                    rgb = tuple(widget.winfo_rgb(color))
-                    darker_rgb = tuple(max(0, val - 5000) for val in rgb)
-                    darker_color = '#{:04x}{:04x}{:04x}'.format(*darker_rgb)
-                    widget.configure(bg=color, activebackground=darker_color)
+        if not self.dark_mode:  # Only animate colors in light mode
+            # Convert HSV to RGB (hue, 0.3, 1.0 for pastel colors)
+            rgb = colorsys.hsv_to_rgb(self.hue, 0.3, 1.0)
+            # Convert RGB values to hex color string
+            color = '#{:02x}{:02x}{:02x}'.format(
+                int(rgb[0] * 255),
+                int(rgb[1] * 255),
+                int(rgb[2] * 255)
+            )
+            
+            # Update background colors - modified version
+            self.root.configure(bg=color)
+            if self.current_frame:
+                def update_widget_colors(widget):
+                    widget.configure(bg=color)
+                    # Special handling for buttons
+                    if isinstance(widget, tk.Button):
+                        rgb = tuple(widget.winfo_rgb(color))
+                        darker_rgb = tuple(max(0, val - 5000) for val in rgb)
+                        darker_color = '#{:04x}{:04x}{:04x}'.format(*darker_rgb)
+                        widget.configure(bg=color, activebackground=darker_color)
+                    
+                    # Recursively update all child widgets
+                    for child in widget.winfo_children():
+                        if isinstance(child, (tk.Frame, tk.Label, tk.Button, tk.Canvas)):
+                            update_widget_colors(child)
+                            # If it's a canvas, also update its internal frame
+                            if isinstance(child, tk.Canvas):
+                                for inner_frame in child.winfo_children():
+                                    update_widget_colors(inner_frame)
+            
+                # Update the main frame and all its children
+                update_widget_colors(self.current_frame)
                 
-                # Recursively update all child widgets
-                for child in widget.winfo_children():
-                    if isinstance(child, (tk.Frame, tk.Label, tk.Button, tk.Canvas)):
-                        update_widget_colors(child)
-                        # If it's a canvas, also update its internal frame
-                        if isinstance(child, tk.Canvas):
-                            for inner_frame in child.winfo_children():
-                                update_widget_colors(inner_frame)
+                # Find and update the scrollable frame inside the canvas
+                for widget in self.current_frame.winfo_children():
+                    if isinstance(widget, tk.Canvas):
+                        for scrollable_frame in widget.winfo_children():
+                            update_widget_colors(scrollable_frame)
             
-            # Update the main frame and all its children
-            update_widget_colors(self.current_frame)
-            
-            # Find and update the scrollable frame inside the canvas
-            for widget in self.current_frame.winfo_children():
-                if isinstance(widget, tk.Canvas):
-                    for scrollable_frame in widget.winfo_children():
-                        update_widget_colors(scrollable_frame)
+            # Increment hue value
+            self.hue = (self.hue + self.color_speed) % 1.0
+        else:
+            self.root.configure(bg=self.current_theme['bg'])
+            if self.current_frame:
+                self.update_theme_colors(self.current_frame)
         
-        # Increment hue value
-        self.hue = (self.hue + self.color_speed) % 1.0
-        
-        # Schedule next animation frame
+        # Always schedule next frame
         self.root.after(50, self.animate_colors)
 
     def create_main_menu(self):
@@ -138,48 +173,85 @@ class MenuScreen:
         canvas.pack(side="left", fill="both", expand=True, padx=(20, 0))
         scrollbar.pack(side="right", fill="y", padx=(0, 20))
 
-        # Title with center alignment
-        title = tk.Label(scrollable_frame, text="Fun Projects", font=self.title_font)
-        title.pack(pady=(40, 20))  # Reduced bottom padding
+        # Add dark mode toggle button in top-right corner
+        toggle_frame = tk.Frame(scrollable_frame)
+        toggle_frame.pack(anchor='ne', padx=20, pady=10)
         
-        # Random project button
+        self.dark_mode_button = tk.Button(
+            toggle_frame,
+            text="☾" if not self.dark_mode else "☼",
+            font=self.menu_font,
+            fg=self.current_theme['button_fg'],
+            cursor='hand2',
+            relief='flat',
+            borderwidth=0,
+            command=self.toggle_dark_mode
+        )
+        self.dark_mode_button.pack()
+        
+        # Title with subtle shadow effect
+        title_frame = tk.Frame(scrollable_frame)
+        title_frame.pack(pady=(40, 5))
+        
+        shadow_title = tk.Label(
+            title_frame,
+            text="Fun Projects",
+            font=self.title_font,
+            fg=self.shadow_color
+        )
+        shadow_title.place(x=self.shadow_offset, y=self.shadow_offset)
+        
+        title = tk.Label(
+            title_frame,
+            text="Fun Projects",
+            font=self.title_font
+        )
+        title.pack()
+        
+        # Add subtitle
+        subtitle = tk.Label(
+            scrollable_frame,
+            text="Choose your entertainment!",
+            font=self.subtitle_font,
+            fg=self.current_theme['subtitle_fg']
+        )
+        subtitle.pack(pady=(0, 30))
+        
+        # Update Random button styling
         random_button = tk.Button(
             scrollable_frame,
-            text="Random",
+            text="Random Project",
             font=self.menu_font,
-            fg='#0066ff',
+            fg=self.current_theme['button_fg'],
             cursor='hand2',
-            relief='solid',
-            borderwidth=2,
-            activeforeground='#0066ff',
+            relief='solid',  # Changed from flat to solid
+            borderwidth=1,   # Added borderwidth
+            activeforeground=self.current_theme['button_fg'],
             width=15,
             height=1,
             command=self.show_random_project
         )
-        # Configure activebackground dynamically
-        random_button.bind('<Enter>', lambda e, btn=random_button: self.on_hover_with_bg(btn))
-        random_button.bind('<Leave>', lambda e, btn=random_button: self.on_leave_with_bg(btn))
-        random_button.pack(pady=(0, 20))
+        random_button.pack(pady=(0, 30))
         
-        # Create buttons for projects
+        # Update project buttons styling
         for item in self.menu_items.keys():
             button_frame = tk.Frame(scrollable_frame)
-            button_frame.pack(fill='x', pady=self.button_padding)
+            button_frame.pack(fill='x', pady=self.button_padding, padx=50)
             
             menu_button = tk.Button(
                 button_frame,
                 text=item,
                 font=self.menu_font,
-                fg='black',
+                fg=self.current_theme['fg'],
                 cursor='hand2',
-                relief='solid',
-                borderwidth=1,
-                activeforeground='#0066ff',
+                relief='solid',  # Changed from flat to solid
+                borderwidth=1,   # Added borderwidth
+                activeforeground=self.current_theme['button_fg'],
                 width=25,
                 height=1,
                 command=lambda name=item: self.show_project_page(name)
             )
-            menu_button.pack(expand=True, pady=5, ipady=5)
+            menu_button.pack(expand=True, pady=5, ipady=8)
             
             # Update hover bindings
             menu_button.bind('<Enter>', lambda e, btn=menu_button: self.on_hover_with_bg(btn))
@@ -200,7 +272,7 @@ class MenuScreen:
             page_frame,
             text="← Back",
             font=self.menu_font,
-            fg='black',
+            fg=self.current_theme['fg'],
             cursor='hand2',
             relief='solid',
             borderwidth=1,
@@ -214,7 +286,7 @@ class MenuScreen:
             text=project_name,
             font=self.title_font,
             #bg='white',
-            fg='black'
+            fg=self.current_theme['fg']
         )
         title.pack(pady=20)
         
@@ -258,7 +330,7 @@ class MenuScreen:
                 text=f"Content for {project_name}",
                 font=self.menu_font,
                 #bg='white',
-                fg='black'
+                fg=self.current_theme['fg']
             )
             content.pack(expand=True)
         
@@ -278,20 +350,29 @@ class MenuScreen:
         self.current_frame = frame
 
     def on_hover_with_bg(self, button):
-        button.configure(fg='#0066ff', borderwidth=2)
-        # Get current background color from parent
+        button.configure(
+            fg=self.current_theme['button_fg'],
+            relief='solid',  # Keep solid relief
+            borderwidth=2    # Increase border width on hover
+        )
+        # Create hover effect with lighter/darker background
         bg_color = button.master.cget('bg')
-        # Make active background slightly darker
         rgb = tuple(button.master.winfo_rgb(bg_color))
-        darker_rgb = tuple(max(0, val - 5000) for val in rgb)
-        darker_color = '#{:04x}{:04x}{:04x}'.format(*darker_rgb)
-        button.configure(activebackground=darker_color)
+        if self.dark_mode:
+            new_rgb = tuple(min(65535, val + 5000) for val in rgb)
+        else:
+            new_rgb = tuple(min(65535, val + 8000) for val in rgb)
+        new_color = '#{:04x}{:04x}{:04x}'.format(*new_rgb)
+        button.configure(bg=new_color)
         
     def on_leave_with_bg(self, button):
-        button.configure(fg='black', borderwidth=1)
-        # Match background with parent
+        button.configure(
+            fg=self.current_theme['fg'],
+            relief='solid',    # Keep solid relief
+            borderwidth=1      # Return to normal border width
+        )
         bg_color = button.master.cget('bg')
-        button.configure(bg=bg_color, activebackground=bg_color)
+        button.configure(bg=bg_color)
 
     def on_click(self, item_name):
         print(f"Clicked: {item_name}")
@@ -309,6 +390,45 @@ class MenuScreen:
         # Choose a random project from the menu items
         random_project = random.choice(list(self.menu_items.keys()))
         self.show_project_page(random_project)
+
+    def toggle_dark_mode(self):
+        self.dark_mode = not self.dark_mode
+        self.current_theme = self.dark_theme if self.dark_mode else self.light_theme
+        self.shadow_color = self.current_theme['shadow']
+        
+        # Update button text with simpler Unicode symbols
+        self.dark_mode_button.configure(
+            text="☼" if self.dark_mode else "☾",
+            fg=self.current_theme['button_fg']
+        )
+        
+        # Update colors for all widgets
+        self.update_theme_colors(self.current_frame)
+    
+    def update_theme_colors(self, widget):
+        if not widget:
+            return
+            
+        if isinstance(widget, tk.Button):
+            is_random = 'Random' in widget.cget('text')
+            widget.configure(
+                fg=self.current_theme['button_fg'] if is_random else self.current_theme['fg'],
+                bg=self.current_theme['bg'],
+                highlightbackground=self.current_theme['border'],  # Add border color
+                highlightcolor=self.current_theme['border']       # Add border color
+            )
+        elif isinstance(widget, tk.Label):
+            if widget.cget('text') == "Choose your entertainment!":
+                widget.configure(fg=self.current_theme['subtitle_fg'])
+            else:
+                widget.configure(fg=self.current_theme['fg'])
+            widget.configure(bg=self.current_theme['bg'])
+        else:
+            widget.configure(bg=self.current_theme['bg'])
+        
+        # Update all child widgets
+        for child in widget.winfo_children():
+            self.update_theme_colors(child)
 
 if __name__ == "__main__":
     root = tk.Tk()
