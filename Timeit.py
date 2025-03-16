@@ -107,6 +107,11 @@ class StopwatchApp:
             # Fake time: Scale it so that each real millisecond counts as 5 milliseconds on the stopwatch
             self.fake_time = real_time * 5  # Make it "run" at 5x the speed
 
+            # Auto-stop at 15 seconds (75 seconds in fake time)
+            if self.fake_time >= 15:
+                self.stop()
+                return
+
             # Calculate the fake time in seconds and milliseconds
             seconds, milliseconds = divmod(self.fake_time, 1)
             minutes, seconds = divmod(seconds, 60)
