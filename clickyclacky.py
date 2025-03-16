@@ -1,21 +1,8 @@
 import tkinter as tk
 import random
-import pygame
 
 class PointlessClicker:
     def __init__(self, parent_frame):
-        # Initialize pygame mixer
-        pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
-        
-        # Load sound files using relative paths
-        try:
-            self.click_sound = pygame.mixer.Sound("mouse-click-104737.wav")
-            self.explosion_sound = pygame.mixer.Sound("explosion-312361.wav")
-        except:
-            print("Warning: Sound files not found. Please ensure 'mouse-click-104737.wav' and 'explosion-312361.wav' are in the same directory as the script.")
-            # Create silent sounds as fallback
-            self.click_sound = pygame.mixer.Sound(buffer=bytearray([0]*44))
-            self.explosion_sound = pygame.mixer.Sound(buffer=bytearray([0]*44))
         
         self.n = 0  # Initial count value
         self.parent = parent_frame

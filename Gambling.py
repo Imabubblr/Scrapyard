@@ -9,7 +9,6 @@ class GamblingGame:
         self.money = 10000
         self.f = False
         pygame.mixer.init()
-        self.win_sound = pygame.mixer.Sound("slot-machine-payout-81725.wav")
         
         # Create game frame with reduced padding
         self.game_frame = tk.Frame(self.parent, bg='white')

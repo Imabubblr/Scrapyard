@@ -7,7 +7,6 @@ class SheepJumpingApp:
         self.canvas = tk.Canvas(parent, width=500, height=300, bg="lightblue")
         self.canvas.pack()
         
-        
         #add a blue sky
         self.canvas.create_rectangle(0, 0, 500, 300, fill="skyblue")
         
