@@ -44,8 +44,8 @@ class MenuScreen:
             "Broken Metronome": "Project 6 Page",
             "Reflexes Game": "Project 7 Page",
             "Study Guide": "Project 8 Page",
-            "Project 9": "Project 9 Page",
-            "Project 10": "Project 10 Page"
+            "FREE ROBUX!! (REAL)": "Project 9 Page",
+            "Pointless Clicker": "Project 10 Page"
         }
         
         # Create main menu frame
@@ -198,6 +198,12 @@ class MenuScreen:
         elif project_name == "Study Guide":
             from Studyhelp import StudyGuide
             game = StudyGuide(page_frame)
+        elif project_name == "FREE ROBUX!! (REAL)":
+            from FreeRobux import FreeRobux
+            game = FreeRobux(page_frame)
+        elif project_name == "Pointless Clicker":
+            from clickyclacky import PointlessClicker
+            game = PointlessClicker(page_frame)
         else:
             # Add your project-specific content here
             content = tk.Label(
