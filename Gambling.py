@@ -108,8 +108,8 @@ class GamblingGame:
                 self.result_label.config(text="Please enter a valid positive amount!")
                 return
             if amount > self.money:
-                self.result_label.config(text="You don't have enough money. Betting all-in!")
-                amount = self.money
+                self.result_label.config(text="You don't have enough money.")
+                return
         except ValueError:
             self.result_label.config(text="Please enter a valid number!")
             return
@@ -150,7 +150,7 @@ class GamblingGame:
         if item1 == item2 == item3:
             win_amount = amount * 10
             self.money += win_amount
-            self.result_label.config(text=f"🎉 JACKPOT! You won: ${win_amount} 🎉")
+            self.result_label.config(text=f"🎉 JACKPOT! You won: ${win_amount}")
             self.win_sound.play()
         else:
             self.money -= amount
@@ -159,7 +159,7 @@ class GamblingGame:
         self.update_balance_label()
 
         if self.money <= 0:
-            self.result_label.config(text="💔 You're out of money! Game Over! 💔")
+            self.result_label.config(text="You're out of money! Game Over!")
             self.gamble_button.config(state=tk.DISABLED)
 
     def update_balance_label(self):

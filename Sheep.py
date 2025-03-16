@@ -1,6 +1,5 @@
 import tkinter as tk
 import time
-import pygame
 
 class SheepJumpingApp:
     def __init__(self, parent):
@@ -8,8 +7,6 @@ class SheepJumpingApp:
         self.canvas = tk.Canvas(parent, width=500, height=300, bg="lightblue")
         self.canvas.pack()
         
-        pygame.mixer.init()
-        self.Sheep_sound = pygame.mixer.Sound("Sheep.wav")
         
         #add a blue sky
         self.canvas.create_rectangle(0, 0, 500, 300, fill="skyblue")
